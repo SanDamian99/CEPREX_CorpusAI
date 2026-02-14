@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Invisible Made Visible (Precision Medicine) | Corpus AI</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --corpus-dark: #00040a;
+            --corpus-deep-blue: #00122e;
+            --corpus-light-blue: #00f2ff;
+            --corpus-accent: #00b4d8;
+            --text-white: #f8f9fa;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            --danger: #ff4d4d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--corpus-dark);
+            background-image:
+                radial-gradient(circle at 20% 30%, rgba(0, 180, 216, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(0, 242, 255, 0.05) 0%, transparent 50%);
+            color: var(--text-white);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 30px;
+        }
+
+
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 300;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .invisible-mode .blur-target {
+            filter: blur(12px);
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .invisible-mode .hidden-text {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        .panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 35px;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .reveal-btn {
+            background: transparent;
+            border: 1px solid var(--corpus-light-blue);
+            color: var(--corpus-light-blue);
+            padding: 15px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: var(--transition);
+            margin-bottom: 20px;
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.1);
+        }
+
+        .reveal-btn.active {
+            background: var(--corpus-light-blue);
+            color: var(--corpus-dark);
+            box-shadow: 0 0 30px rgba(0, 242, 255, 0.4);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            transition: var(--transition);
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            opacity: 0.7;
+        }
+
+        .input-group input[type="range"] {
+            width: 100%;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            appearance: none;
+            outline: none;
+        }
+
+        .input-group input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            background: var(--text-white);
+            border: 2px solid var(--corpus-light-blue);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--corpus-light-blue);
+        }
+
+        .val-display {
+            font-family: 'Space Grotesk', monospace;
+            font-size: 0.9rem;
+            color: var(--corpus-light-blue);
+            text-align: right;
+            margin-top: 5px;
+        }
+
+        .chart-panel {
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 30px;
+        }
+
+        .status-pill {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .status-pill.visible {
+            border-color: var(--corpus-light-blue);
+            color: var(--corpus-light-blue);
+            background: rgba(0, 242, 255, 0.05);
+        }
+
+        .trajectory-container {
+            height: 650px;
+            position: relative;
+        }
+
+        .overlay-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 10;
+            transition: var(--transition);
+        }
+
+        .overlay-message h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 300;
+            margin-bottom: 10px;
+        }
+
+        .hidden {
+            display: none !important;
+            opacity: 0;
+        }
+
+        .impact-footer {
+            margin-top: 40px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .impact-card {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .impact-val {
+            font-size: 2rem;
+            font-weight: 800;
+            font-family: 'Space Grotesk', sans-serif;
+            color: var(--corpus-light-blue);
+            display: block;
+        }
+
+        .impact-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            opacity: 0.5;
+            letter-spacing: 1px;
+        }
+
+        /* Scanline effect override */
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0.2;
+        }
+
+        @keyframes pulse-glow {
+            0% {
+                box-shadow: 0 0 10px rgba(0, 242, 255, 0.1);
+            }
+
+            50% {
+                box-shadow: 0 0 25px rgba(0, 242, 255, 0.3);
+            }
+
+            100% {
+                box-shadow: 0 0 10px rgba(0, 242, 255, 0.1);
+            }
+        }
+
+        .active-ai .reveal-btn {
+            animation: pulse-glow 2s infinite;
+        }
+
+        @media (max-width: 1000px) {
+            .dashboard-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="shared.css">
+</head>
+
+<body class="invisible-mode sub-dashboard">
+
+    <div class="container">
+        <header>
+            <div class="brand"><img src="3.png" alt="CORPUS"></div>
+            <h1>Haciendo Visible lo Invisible</h1>
+        </header>
+
+        <div class="dashboard-layout">
+            <aside class="panel controls">
+                <button class="reveal-btn" id="toggle-ai">Activar Ciencia de Datos</button>
+
+                <div class="blur-target">
+                    <div class="input-group">
+                        <label>Frecuencia de Monitoreo</label>
+                        <input type="range" id="param-freq" min="1" max="10" value="2">
+                        <div class="val-display"><span id="txt-freq">2</span>/mes</div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Adherencia al Tratamiento</label>
+                        <input type="range" id="param-adh" min="20" max="100" value="50">
+                        <div class="val-display"><span id="txt-adh">50</span>%</div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Control de Biomarcadores</label>
+                        <input type="range" id="param-bio" min="0" max="100" value="30">
+                        <div class="val-display"><span id="txt-bio">30</span>%</div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Respuesta de Agente IA (Escala)</label>
+                        <input type="range" id="param-ai" min="0" max="100" value="10">
+                        <div class="val-display"><span id="txt-ai">10</span>%</div>
+                    </div>
+                </div>
+
+                <div class="panel" style="margin-top: 20px; background: rgba(0, 242, 255, 0.02);">
+                    <span class="hidden-text" style="font-size: 0.8rem; opacity: 0.8;">
+                        <strong>Insight AI:</strong> Factores de riesgo subyacentes identificados en patrones de
+                        comportamiento no estructurados.
+                    </span>
+                </div>
+            </aside>
+
+            <main class="panel chart-panel">
+                <div class="chart-header">
+                    <div>
+                        <h3 id="chart-title">Trayectoria de Riesgo del Paciente</h3>
+                        <p style="font-size: 0.8rem; opacity: 0.5;">Predicción a 24 meses</p>
+                    </div>
+                    <div class="status-pill" id="status-pill">Modo Tradicional: Ciego</div>
+                </div>
+
+                <div class="trajectory-container">
+                    <div class="overlay-message" id="overlay-msg">
+                        <h2>Visión Limitada</h2>
+                        <p>Sin modelos predictivos, los eventos críticos son invisibles hasta que ocurren.</p>
+                    </div>
+                    <canvas id="trajectoryChart" class="blur-target"></canvas>
+                </div>
+
+                <div class="impact-footer blur-target">
+                    <div class="impact-card">
+                        <span class="impact-val" id="val-risk">- -</span>
+                        <span class="impact-label">Probab. Evento Crítico</span>
+                    </div>
+                    <div class="impact-card">
+                        <span class="impact-val" id="val-life">- -</span>
+                        <span class="impact-label">Meses de Salud Ganados</span>
+                    </div>
+                    <div class="impact-card">
+                        <span class="impact-val" id="val-scale">- -</span>
+                        <span class="impact-label">Escalabilidad (Agentes)</span>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <footer style="margin-top: 60px; text-align: center; font-size: 0.7rem; opacity: 0.3; letter-spacing: 2px;">
+            CORPUS AI LABS &copy; 2026 | TRANSFORMING DATA INTO FORESIGHT
+        </footer>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('trajectoryChart').getContext('2d');
+        let chart;
+        let isVisible = false;
+
+        // Financial/Clinical Logic
+        function updateData() {
+            const freq = parseInt(document.getElementById('param-freq').value);
+            const adh = parseInt(document.getElementById('param-adh').value) / 100;
+            const bio = parseInt(document.getElementById('param-bio').value) / 100;
+            const ai = parseInt(document.getElementById('param-ai').value) / 100;
+
+            // UI Updates
+            document.getElementById('txt-freq').innerText = freq;
+            document.getElementById('txt-adh').innerText = (adh * 100).toFixed(0);
+            document.getElementById('txt-bio').innerText = (bio * 100).toFixed(0);
+            document.getElementById('txt-ai').innerText = (ai * 100).toFixed(0);
+
+            if (!isVisible) return;
+
+            // Trayectorias
+            const months = Array.from({ length: 25 }, (_, i) => i);
+
+            // Natural: Riesgo que sube
+            const naturalPath = months.map(m => 20 + Math.pow(m, 1.4));
+
+            // Optimized: Impactado por variables
+            // Impact factor calculation
+            const impact = (freq * 0.05) + (adh * 0.3) + (bio * 0.4) + (ai * 0.25);
+            const optimizedPath = months.map(m => {
+                const baseRisk = 20 + Math.pow(m, 1.4);
+                // Decay function based on impact
+                return baseRisk * Math.exp(-impact * (m / 12));
+            });
+
+            chart.data.labels = months;
+            chart.data.datasets[0].data = naturalPath;
+            chart.data.datasets[1].data = optimizedPath;
+            chart.update('none');
+
+            // Metrics update
+            const finalNatural = naturalPath[24];
+            const finalOpt = optimizedPath[24];
+            const riskReduction = ((finalNatural - finalOpt) / finalNatural) * 100;
+            const lifeGained = (impact * 12).toFixed(1);
+            const scalability = (ai * 100).toFixed(0) + 'x';
+
+            document.getElementById('val-risk').innerText = Math.max(0, (100 - riskReduction)).toFixed(0) + '%';
+            document.getElementById('val-life').innerText = '+' + lifeGained;
+            document.getElementById('val-scale').innerText = scalability;
+        }
+
+        function initChart() {
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({ length: 25 }, (_, i) => i),
+                    datasets: [
+                        {
+                            label: 'Evolución Natural (Sin Intervención AI)',
+                            data: [],
+                            borderColor: 'rgba(255, 77, 77, 0.4)',
+                            borderDash: [5, 5],
+                            backgroundColor: 'transparent',
+                            tension: 0.4,
+                            borderWidth: 2,
+                            pointRadius: 0
+                        },
+                        {
+                            label: 'Trayectoria Optimizada Corpus AI',
+                            data: [],
+                            borderColor: '#00f2ff',
+                            backgroundColor: 'rgba(0, 242, 255, 0.1)',
+                            fill: true,
+                            tension: 0.4,
+                            borderWidth: 4,
+                            pointRadius: 0,
+                            shadowBlur: 10,
+                            shadowColor: '#00f2ff'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: { color: 'rgba(255,255,255,0.7)', font: { family: 'Space Grotesk' } }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: 'rgba(255,255,255,0.3)' },
+                            title: { display: true, text: 'NIVEL DE RIESGO CLÍNICO', color: 'rgba(255,255,255,0.5)' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: 'rgba(255,255,255,0.3)' },
+                            title: { display: true, text: 'MESES', color: 'rgba(255,255,255,0.5)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Toggle Science
+        document.getElementById('toggle-ai').addEventListener('click', function () {
+            isVisible = !isVisible;
+            const body = document.body;
+            const btn = this;
+            const overlay = document.getElementById('overlay-msg');
+            const status = document.getElementById('status-pill');
+
+            if (isVisible) {
+                body.classList.remove('invisible-mode');
+                body.classList.add('active-ai');
+                btn.innerText = 'Ciencia de Datos Activa';
+                btn.classList.add('active');
+                overlay.classList.add('hidden');
+                status.innerText = 'Vision Predictiva: Activada';
+                status.classList.add('visible');
+                updateData();
+            } else {
+                body.classList.add('invisible-mode');
+                body.classList.remove('active-ai');
+                btn.innerText = 'Activar Ciencia de Datos';
+                btn.classList.remove('active');
+                overlay.classList.remove('hidden');
+                status.innerText = 'Modo Tradicional: Ciego';
+                status.classList.remove('visible');
+
+                document.getElementById('val-risk').innerText = '- -';
+                document.getElementById('val-life').innerText = '- -';
+                document.getElementById('val-scale').innerText = '- -';
+            }
+        });
+
+        // Listeners
+        document.querySelectorAll('input[type="range"]').forEach(i => {
+            i.addEventListener('input', updateData);
+        });
+
+        // Init
+        initChart();
+        updateData();
+
+    </script>
+
+</body>
+
+</html>

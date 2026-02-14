@@ -1,0 +1,50 @@
+:root {
+    --logo-scale: 0.8;
+    /* Scale is now 1:1 with the logo content height */
+
+    /* Adjusted heights now that whitespace is gone */
+    --logo-index-height: 180px;
+    --logo-dashboard-height: 140px;
+    --logo-sub-dashboard-height: 100px;
+    --logo-footer-height: 80px;
+}
+
+/* Global Logo Classes */
+.logo-full {
+    max-width: 100%;
+    object-fit: contain;
+    display: block;
+    transition: all 0.3s ease;
+}
+
+/* Specific Contexts */
+nav .logo-container {
+    height: var(--logo-index-height);
+    margin-bottom: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+nav .logo-full {
+    max-height: var(--logo-index-height);
+}
+
+header .brand img {
+    max-height: var(--logo-dashboard-height);
+    width: auto;
+    filter: drop-shadow(0 0 15px rgba(0, 242, 255, 0.4));
+    margin-top: -10px;
+    /* Pull up to reduce vertical footprint */
+    margin-bottom: -10px;
+}
+
+/* Sub-dashboards sizing */
+.sub-dashboard header .brand img {
+    max-height: var(--logo-sub-dashboard-height);
+}
+
+.footer-brand img {
+    max-height: var(--logo-footer-height);
+    filter: grayscale(1) brightness(2);
+}

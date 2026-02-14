@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Together | Corpus AI</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --corpus-dark: #00040a;
+            --corpus-deep-blue: #00122e;
+            --corpus-light-blue: #00f2ff;
+            --corpus-accent: #00b4d8;
+            --text-white: #f8f9fa;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--corpus-dark);
+            color: var(--text-white);
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            background-image:
+                radial-gradient(circle at 50% 50%, var(--corpus-deep-blue) 0%, var(--corpus-dark) 100%);
+        }
+
+        /* Subtle Background Animation */
+        .bg-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        .main-content {
+            z-index: 10;
+            text-align: center;
+            padding: 40px;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeIn 1.5s forwards 0.5s;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .phrase {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 5rem;
+            font-weight: 300;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            line-height: 0.9;
+            margin-bottom: 40px;
+        }
+
+        .phrase span {
+            display: block;
+            color: var(--corpus-light-blue);
+            font-weight: 700;
+            text-shadow: 0 0 40px rgba(0, 242, 255, 0.3);
+        }
+
+        .subtext {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto 80px;
+            line-height: 1.6;
+            opacity: 0.7;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        .contact-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            padding: 50px;
+            border-radius: 40px;
+            backdrop-filter: blur(20px);
+            display: inline-block;
+            transition: var(--transition);
+        }
+
+        .contact-card:hover {
+            border-color: var(--corpus-light-blue);
+            transform: scale(1.05);
+            background: rgba(0, 242, 255, 0.02);
+            box-shadow: 0 0 50px rgba(0, 242, 255, 0.1);
+        }
+
+        .contact-label {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: var(--corpus-light-blue);
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .contact-name {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 25px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .contact-details {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            font-size: 1.1rem;
+        }
+
+        .contact-item {
+            text-decoration: none;
+            color: var(--text-white);
+            opacity: 0.8;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .contact-item:hover {
+            opacity: 1;
+            color: var(--corpus-light-blue);
+        }
+
+        .footer-brand {
+            position: absolute;
+            bottom: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            opacity: 0.3;
+        }
+
+        .footer-brand img {
+            filter: grayscale(1) brightness(2);
+        }
+
+        /* Shared CSS handles max-height via .footer-brand img */
+
+        .footer-brand span {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.6rem;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+        }
+    </style>
+    <link rel="stylesheet" href="shared.css">
+</head>
+
+<body>
+
+    <svg class="bg-lines" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <path d="M0,50 Q25,20 50,50 T100,50" fill="none" stroke="white" stroke-width="0.1" />
+        <path d="M0,30 Q25,60 50,30 T100,30" fill="none" stroke="white" stroke-width="0.1" />
+        <path d="M0,70 Q25,40 50,70 T100,70" fill="none" stroke="white" stroke-width="0.1" />
+    </svg>
+
+    <div class="main-content">
+        <h1 class="phrase">
+            Fast alone.<br>
+            <span>Far together.</span>
+        </h1>
+
+        <p class="subtext">
+            La información por sí sola es potencial. La acción compartida es impacto real. Generemos el cambio en la
+            salud proactiva, juntos.
+        </p>
+
+        <div class="contact-card">
+            <span class="contact-label">Hablemos ahora</span>
+            <div class="contact-name">Andrea Toro</div>
+
+            <div class="contact-details">
+                <a href="mailto:andrea@corpusai.org" class="contact-item">
+                    <span>✉</span> andrea@corpusai.org
+                </a>
+                <a href="tel:3174404114" class="contact-item">
+                    <span>✆</span> 3174404114
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-brand">
+        <img src="3.png" alt="CORPUS">
+        <span>IMPACT UNIT 2026</span>
+    </div>
+
+    <script>
+        // Simple interactive effect
+        document.body.addEventListener('mousemove', (e) => {
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+
+            document.body.style.background = `radial-gradient(circle at ${x * 100}% ${y * 100}%, var(--corpus-deep-blue) 0%, var(--corpus-dark) 100%)`;
+        });
+    </script>
+</body>
+
+</html>

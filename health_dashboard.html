@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preventive Health ROI | Corpus AI</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --corpus-dark: #000814;
+            --corpus-deep-blue: #001d3d;
+            --corpus-light-blue: #00f2ff;
+            --corpus-accent: #00b4d8;
+            --text-white: #f8f9fa;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+            --roi-glow: 0px 0px 20px rgba(0, 242, 255, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: radial-gradient(circle at center, var(--corpus-deep-blue) 0%, var(--corpus-dark) 100%);
+            color: var(--text-white);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Scanline effect */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 4px, 3px 100%;
+            pointer-events: none;
+            z-index: 100;
+            opacity: 0.3;
+        }
+
+        h1,
+        h2,
+        h3,
+        .brand {
+            font-family: 'Space Grotesk', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 10px;
+            animation: fadeInDown 1s ease-out;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 30px;
+        }
+
+        .panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+            transition: var(--transition);
+        }
+
+        .panel:hover {
+            border-color: rgba(0, 242, 255, 0.3);
+            box-shadow: 0 0 40px rgba(0, 242, 255, 0.05);
+        }
+
+        .controls h3 {
+            font-size: 0.85rem;
+            margin-bottom: 25px;
+            color: var(--corpus-accent);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .controls h3::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, var(--corpus-accent), transparent);
+        }
+
+        .input-group {
+            margin-bottom: 30px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.75rem;
+            margin-bottom: 12px;
+            opacity: 0.8;
+            font-weight: 500;
+        }
+
+        .input-group input[type="range"] {
+            width: 100%;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            appearance: none;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .input-group input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            background: var(--corpus-light-blue);
+            border-radius: 0;
+            /* Matrix style */
+            transform: rotate(45deg);
+            cursor: pointer;
+            box-shadow: 0 0 15px var(--corpus-light-blue);
+            transition: var(--transition);
+        }
+
+        .input-group input[type="range"]:active::-webkit-slider-thumb {
+            transform: rotate(45deg) scale(1.5);
+            box-shadow: 0 0 25px var(--corpus-light-blue);
+        }
+
+        .value-display {
+            display: flex;
+            justify-content: flex-end;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-top: 8px;
+            color: var(--corpus-light-blue);
+            font-family: 'Space Grotesk', monospace;
+        }
+
+        .metrics-bar {
+            grid-column: span 2;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--corpus-accent);
+            opacity: 0.5;
+        }
+
+        .metric-card.wow {
+            border-color: var(--corpus-light-blue);
+            box-shadow: var(--roi-glow);
+        }
+
+        .metric-value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--text-white);
+            display: block;
+            font-family: 'Space Grotesk', sans-serif;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+        }
+
+        .metric-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            opacity: 0.5;
+            margin-top: 5px;
+            letter-spacing: 1px;
+        }
+
+        .main-display {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .chart-panel {
+            position: relative;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            padding-top: 20px;
+        }
+
+        .comparison-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .type-card {
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.01);
+            position: relative;
+        }
+
+        .type-card h4 {
+            font-size: 1rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .type-card p {
+            font-size: 0.85rem;
+            opacity: 0.6;
+            line-height: 1.6;
+        }
+
+        .type-card.reactive {
+            border-left: 2px solid #ff4d4d;
+        }
+
+        .type-card.preventive {
+            border-left: 2px solid var(--corpus-light-blue);
+            box-shadow: 0 0 30px rgba(0, 242, 255, 0.05);
+        }
+
+        .ai-indicator {
+            width: 10px;
+            height: 10px;
+            background: var(--corpus-light-blue);
+            box-shadow: 0 0 15px var(--corpus-light-blue);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.5);
+                opacity: 0.5;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Number Ticker Animation Class */
+        .ticker-update {
+            animation: tickerHighlight 0.4s ease;
+        }
+
+        @keyframes tickerHighlight {
+            0% {
+                color: var(--corpus-light-blue);
+                transform: scale(1.1);
+            }
+
+            100% {
+                color: inherit;
+                transform: scale(1);
+            }
+        }
+
+        .footer {
+            margin-top: 80px;
+            text-align: center;
+            font-size: 0.75rem;
+            opacity: 0.3;
+            letter-spacing: 2px;
+        }
+
+        /* Speed Gauge decoration */
+        .gauge-container {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+            margin-top: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .gauge-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--corpus-accent), var(--corpus-light-blue));
+            width: 0%;
+            transition: width 1s cubic-bezier(0.22, 1, 0.36, 1);
+            box-shadow: 0 0 10px var(--corpus-light-blue);
+        }
+
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .metrics-bar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .comparison-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="shared.css">
+</head>
+
+<body>
+
+    <div class="container">
+        <header>
+            <div class="brand"><img src="3.png" alt="CORPUS"></div>
+            <div
+                style="font-size: 0.7rem; opacity: 0.5; background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 4px;">
+                ENGINE STATUS: ACTIVE</div>
+        </header>
+
+        <div class="metrics-bar">
+            <div class="metric-card" id="card-savings">
+                <span class="metric-value" id="val-total-savings">$0</span>
+                <span class="metric-label">Impacto Económico Anual</span>
+                <div class="gauge-container">
+                    <div class="gauge-fill" id="gauge-savings"></div>
+                </div>
+            </div>
+            <div class="metric-card" id="card-roi">
+                <span class="metric-value" id="val-roi">0%</span>
+                <span class="metric-label">Efficiency ROI</span>
+                <div class="gauge-container">
+                    <div class="gauge-fill" id="gauge-roi"></div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <span class="metric-value" id="val-prevented">0</span>
+                <span class="metric-label">Crisis Evitadas (ML)</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-value" id="val-cost-patient">$0</span>
+                <span class="metric-label">Costo por Paciente</span>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <aside class="panel controls">
+                <h3>Variables Poblacionales</h3>
+
+                <div class="input-group">
+                    <label>Volumen de Pacientes</label>
+                    <input type="range" id="param-pop" min="1000" max="100000" step="1000" value="25000">
+                    <div class="value-display" id="txt-pop">25,000</div>
+                </div>
+
+                <div class="input-group">
+                    <label>Severidad del Evento Agudo ($)</label>
+                    <input type="range" id="param-cost-acute" min="2000" max="50000" step="1000" value="8000">
+                    <div class="value-display" id="txt-cost-acute">$8,000</div>
+                </div>
+
+                <div class="input-group">
+                    <label>Incidencia de Riesgo Crónico</label>
+                    <input type="range" id="param-prev" min="5" max="60" step="1" value="20">
+                    <div class="value-display"><span id="txt-prev">20</span>%</div>
+                </div>
+
+                <h3 style="margin-top: 40px;">Optimización Digital</h3>
+
+                <div class="input-group">
+                    <label>Potencia Predictiva (ML Accuracy)</label>
+                    <input type="range" id="param-ml-acc" min="0" max="98" step="1" value="0">
+                    <div class="value-display" id="txt-ml-acc">0%</div>
+                </div>
+
+                <div class="input-group">
+                    <label>Automatización por Agentes IA</label>
+                    <input type="range" id="param-ai-eff" min="0" max="90" step="5" value="0">
+                    <div class="value-display" id="txt-ai-eff">0%</div>
+                </div>
+            </aside>
+
+            <main class="main-display">
+                <div class="panel chart-panel">
+                    <h3 style="margin-bottom: 20px;">Divergencia de Costos: Reactivo vs Proactivo</h3>
+                    <div class="chart-container">
+                        <canvas id="costChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="comparison-cards">
+                    <div class="type-card reactive">
+                        <h4><span style="color: #ff4d4d; font-size: 0.6rem;">▲</span> Modelo Reactivo</h4>
+                        <p>Intervención post-evento. El sistema absorbe el 100% del costo agudo dificultando la
+                            escalabilidad y sostenibilidad financiera de la institución.</p>
+                    </div>
+                    <div class="type-card preventive">
+                        <h4>
+                            <div class="ai-indicator"></div> Modelo Corpus IA
+                        </h4>
+                        <p>Prevenimos la crisis. Mediante agentes autónomos de monitoreo y modelos de alta precisión,
+                            transformamos el gasto agudo en inversión preventiva controlada.</p>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <div class="footer">
+            CORPUS HEALTH GENIUS &copy; 2026 | SOPHISTICATED PREDICTIVE FABRIC
+        </div>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('costChart').getContext('2d');
+        let chart;
+
+        // Helper to animate numbers
+        function animateValue(id, start, end, duration, isCurrency = false, isPercent = false) {
+            const obj = document.getElementById(id);
+            if (!obj) return;
+
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const value = progress * (end - start) + start;
+
+                if (isCurrency) {
+                    obj.innerHTML = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value);
+                } else if (isPercent) {
+                    obj.innerHTML = value.toFixed(1) + '%';
+                } else {
+                    obj.innerHTML = Math.floor(value).toLocaleString();
+                }
+
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        let lastMetrics = { savings: 0, roi: 0, prevented: 0, cost: 0 };
+
+        function updateCalculations() {
+            const pop = parseInt(document.getElementById('param-pop').value);
+            const costAcute = parseInt(document.getElementById('param-cost-acute').value);
+            const prev = parseInt(document.getElementById('param-prev').value) / 100;
+            const mlAcc = parseInt(document.getElementById('param-ml-acc').value) / 100;
+            const aiEff = parseInt(document.getElementById('param-ai-eff').value) / 100;
+
+            // Instant text updates
+            document.getElementById('txt-pop').innerText = pop.toLocaleString();
+            document.getElementById('txt-cost-acute').innerText = '$' + costAcute.toLocaleString();
+            document.getElementById('txt-prev').innerText = (prev * 100).toFixed(0);
+            document.getElementById('txt-ml-acc').innerText = (mlAcc * 100).toFixed(0) + '%';
+            document.getElementById('txt-ai-eff').innerText = (aiEff * 100).toFixed(0) + '%';
+
+            // LOGIC REFINEMENT: SYNERGY & VOLUME
+            const patientsAtRisk = pop * prev;
+            const reactiveCost = patientsAtRisk * costAcute;
+
+            // 1. ML Impact (Medium: 0.45 capacity)
+            const mlFactor = mlAcc * 0.45;
+
+            // 2. AI Impact (Small on its own: 0.15 capacity)
+            const aiFactor = aiEff * 0.15;
+
+            // 3. Synergy (Large Impact: AI boosts ML results by up to 0.45 extra)
+            const synergyFactor = (mlAcc * aiEff * 0.45);
+
+            // 4. Volume Multiplier (Economies of Scale)
+            const volumeEffect = Math.pow(pop / 25000, 0.12);
+
+            const totalEfficiency = (mlFactor + aiFactor + synergyFactor) * volumeEffect;
+
+            // Preventive cost is baseline - savings
+            const efficiencyCapped = Math.min(totalEfficiency, 0.95);
+            const savings = reactiveCost * efficiencyCapped;
+            const preventiveCost = reactiveCost - savings;
+
+            const roi = (savings / Math.max(preventiveCost, 1)) * 100;
+            const prevented = patientsAtRisk * mlAcc * (1 + (aiEff * 0.5));
+            const costPerPatient = preventiveCost / pop;
+
+            // Animate metrics
+            animateValue('val-total-savings', lastMetrics.savings, savings, 800, true);
+            animateValue('val-roi', lastMetrics.roi, roi, 800, false, true);
+            animateValue('val-prevented', lastMetrics.prevented, prevented, 800);
+            animateValue('val-cost-patient', lastMetrics.cost, costPerPatient, 800, true);
+
+            // Gauges
+            document.getElementById('gauge-savings').style.width = Math.min((savings / 50000000) * 100, 100) + '%';
+            document.getElementById('gauge-roi').style.width = Math.min((roi / 1000) * 100, 100) + '%';
+
+            // Add wow highlight
+            if (roi > 400) {
+                document.getElementById('card-roi').classList.add('wow');
+            } else {
+                document.getElementById('card-roi').classList.remove('wow');
+            }
+
+            lastMetrics = { savings, roi, prevented, cost: costPerPatient };
+            updateChart(reactiveCost, preventiveCost);
+        }
+
+        function initChart() {
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['GASTO REACTIVO', 'INVERSIÓN PROACTIVA (CORPUS)'],
+                    datasets: [{
+                        data: [0, 0],
+                        backgroundColor: [
+                            'rgba(255, 77, 77, 0.2)',
+                            'rgba(0, 242, 255, 0.3)'
+                        ],
+                        borderColor: [
+                            '#ff4d4d',
+                            '#00f2ff'
+                        ],
+                        borderWidth: 2,
+                        borderRadius: 12,
+                        hoverBackgroundColor: ['rgba(255, 77, 77, 0.4)', 'rgba(0, 242, 255, 0.5)'],
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            enabled: true,
+                            backgroundColor: 'rgba(0,0,0,0.8)',
+                            titleFont: { family: 'Space Grotesk' },
+                            callbacks: {
+                                label: function (context) {
+                                    return 'Cost: ' + new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.raw);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.4)',
+                                font: { family: 'Space Grotesk' },
+                                callback: function (value) { return '$' + (value / 1e6).toFixed(1) + 'M'; }
+                            }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                font: { family: 'Space Grotesk', weight: '700' }
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 1500,
+                        easing: 'easeOutQuart'
+                    }
+                }
+            });
+        }
+
+        function updateChart(reactive, preventive) {
+            chart.data.datasets[0].data = [reactive, preventive];
+            chart.update();
+        }
+
+        // Event Listeners
+        document.querySelectorAll('input[type="range"]').forEach(input => {
+            input.addEventListener('input', updateCalculations);
+        });
+
+        // Init
+        initChart();
+        updateCalculations();
+    </script>
+
+</body>
+
+</html>

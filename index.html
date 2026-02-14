@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corpus AI | Presentation Suite</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --corpus-dark: #00040a;
+            --corpus-deep-blue: #00122e;
+            --corpus-light-blue: #00f2ff;
+            --text-white: #f8f9fa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--corpus-dark);
+            color: var(--text-white);
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Side Navigation */
+        nav {
+            width: 280px;
+            background: rgba(0, 18, 46, 0.9);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            padding: 40px 10px;
+            backdrop-filter: blur(20px);
+            z-index: 100;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        nav.collapsed {
+            width: 85px;
+            padding: 40px 10px;
+        }
+
+        .logo-iso {
+            max-width: 40px;
+            display: none;
+        }
+
+        nav.collapsed .logo-full {
+            display: none;
+        }
+
+        nav.collapsed .logo-iso {
+            display: block;
+        }
+
+        .sidebar-toggle {
+            position: absolute;
+            top: 20px;
+            right: -15px;
+            width: 30px;
+            height: 30px;
+            background: var(--corpus-light-blue);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--corpus-dark);
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
+            z-index: 110;
+            transition: 0.3s;
+        }
+
+        .sidebar-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.8);
+        }
+
+        nav.collapsed .sidebar-toggle {
+            right: -15px;
+            transform: rotate(180deg);
+        }
+
+        nav.collapsed .sidebar-toggle:hover {
+            transform: rotate(180deg) scale(1.1);
+        }
+
+        .logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            letter-spacing: 4px;
+            margin-bottom: 60px;
+            font-size: 1.2rem;
+            color: var(--corpus-light-blue);
+        }
+
+        .nav-item {
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 0.9rem;
+            opacity: 0.6;
+            border: 1px solid transparent;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        nav.collapsed .nav-item {
+            padding: 15px;
+            justify-content: center;
+        }
+
+        nav.collapsed .nav-item span:not(.nav-num) {
+            display: none;
+        }
+
+        nav.collapsed .nav-num {
+            font-size: 0.9rem;
+            opacity: 1;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.03);
+            opacity: 0.8;
+        }
+
+        .nav-item.active {
+            background: rgba(0, 242, 255, 0.05);
+            border-color: var(--corpus-light-blue);
+            opacity: 1;
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.1);
+        }
+
+        .nav-num {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 300;
+            opacity: 0.5;
+            font-size: 0.7rem;
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            position: relative;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.8s ease;
+        }
+
+        iframe.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* Floating Controls */
+        .controls {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .ctrl-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--corpus-deep-blue);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--corpus-light-blue);
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: 0.3s;
+        }
+
+        .ctrl-btn:hover {
+            background: var(--corpus-light-blue);
+            color: var(--corpus-dark);
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.4);
+        }
+    </style>
+    <link rel="stylesheet" href="shared.css">
+</head>
+
+<body>
+
+    <nav id="sidebar">
+        <button class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle Sidebar">‹</button>
+        <div class="logo-container">
+            <img src="3.png" alt="Corpus AI" class="logo-full">
+            <img src="5.png" alt="Corpus AI" class="logo-iso">
+        </div>
+
+        <div class="nav-item active" onclick="loadFrame(0)">
+            <span class="nav-num">01</span>
+            <span>Retorno de Inversión</span>
+        </div>
+
+        <div class="nav-item" onclick="loadFrame(1)">
+            <span class="nav-num">02</span>
+            <span>Trayectorias Clínicas</span>
+        </div>
+
+        <div class="nav-item" onclick="loadFrame(2)">
+            <span class="nav-num">03</span>
+            <span>Giro Epistemológico</span>
+        </div>
+
+        <div class="nav-item" onclick="loadFrame(3)">
+            <span class="nav-num">04</span>
+            <span>Impacto y Contacto</span>
+        </div>
+
+        <div id="nav-footer"
+            style="margin-top: auto; opacity: 0.3; font-size: 0.7rem; text-align: center; letter-spacing: 2px;">
+            PRESENTATION UNIT 2026
+        </div>
+    </nav>
+
+    <main id="main-frame-container">
+        <iframe src="health_dashboard.html" class="active"></iframe>
+        <iframe src="trajectory_dashboard.html"></iframe>
+        <iframe src="epistemic_dashboard.html"></iframe>
+        <iframe src="closing_page.html"></iframe>
+    </main>
+
+    <div class="controls">
+        <button class="ctrl-btn" onclick="prevFrame()">←</button>
+        <button class="ctrl-btn" onclick="nextFrame()">→</button>
+    </div>
+
+    <script>
+        let currentIndex = 0;
+        const iframes = document.querySelectorAll('iframe');
+        const navItems = document.querySelectorAll('.nav-item');
+        const sidebar = document.getElementById('sidebar');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('collapsed');
+            const toggleBtn = document.querySelector('.sidebar-toggle');
+            if (sidebar.classList.contains('collapsed')) {
+                toggleBtn.innerText = '›';
+                document.getElementById('nav-footer').style.display = 'none';
+            } else {
+                toggleBtn.innerText = '‹';
+                document.getElementById('nav-footer').style.display = 'block';
+            }
+        }
+
+        function loadFrame(index) {
+            iframes.forEach(f => f.classList.remove('active'));
+            navItems.forEach(n => n.classList.remove('active'));
+
+            iframes[index].classList.add('active');
+            navItems[index].classList.add('active');
+            currentIndex = index;
+        }
+
+        function nextFrame() {
+            let next = (currentIndex + 1) % iframes.length;
+            loadFrame(next);
+        }
+
+        function prevFrame() {
+            let prev = (currentIndex - 1 + iframes.length) % iframes.length;
+            loadFrame(prev);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') nextFrame();
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') prevFrame();
+        });
+    </script>
+</body>
+
+</html>
